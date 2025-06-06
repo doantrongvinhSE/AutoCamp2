@@ -1,0 +1,9 @@
+{
+  "FilePath": "C:\\Users\\PC\\Desktop\\profile_data",
+  "Cookie": "sb=C7oBaGXHVdMfKBVLSwExCTZp;ps_l=1;ps_n=1;locale=en_US;wd=1920x953;datr=s6ZCaIi6wBu_9B48Nedlbi2-;c_user=100000566470040;xs=3%3A4nJWQidQctloCw%3A2%3A1749198532%3A-1%3A-1;fr=1fyib2OUBXRuTkxT1.AWc3LMxnpW6UzKf3lV11KYs9r4L8C_GSf5Kf1p9t_iMICvOILp0.BoQpvP..AAA.0.0.BoQqbH.AWcNvi50R2oQK8Zv06YQtDxK4is;",
+  "Proxy": "212.32.99.11:46709:azJGpe4sNwE4waa:Bhz8FvNTNrXpRat",
+  "Uid": "100000566470040",
+  "Password": "tan123456789",
+  "Token": "HYHN3UXXT255KSWXEFUUWIMBAC4CC3ZG",
+  "IsProxy": true
+}
