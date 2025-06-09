@@ -8,6 +8,8 @@ using Newtonsoft.Json.Linq;
 using System.Data;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Linq;
+using OpenQA.Selenium;
 
 namespace AutoCamp
 {
@@ -16,6 +18,62 @@ namespace AutoCamp
         public Form1()
         {
             InitializeComponent();
+            LoadFormData();
+        }
+
+        private void SaveFormData()
+        {
+            try
+            {
+                string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "form_config.txt");
+                var configData = new
+                {
+                    Cookie = txtCookieVia.Text,
+                    Token = txtToken.Text,
+                    UseProxy = cbxProxy.Checked,
+                    Proxy = txtProxyVia.Text
+                };
+
+                string jsonData = JsonConvert.SerializeObject(configData, Formatting.Indented);
+                File.WriteAllText(configPath, jsonData);
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi lưu cấu hình: {ex.Message}");
+            }
+        }
+
+        private void LoadFormData()
+        {
+            try
+            {
+                string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "form_config.txt");
+                if (File.Exists(configPath))
+                {
+                    string jsonData = File.ReadAllText(configPath);
+                    var configData = JsonConvert.DeserializeObject<dynamic>(jsonData);
+
+                    txtCookieVia.Text = configData.Cookie?.ToString() ?? "";
+                    txtToken.Text = configData.Token?.ToString() ?? "";
+                    cbxProxy.Checked = configData.UseProxy?.ToObject<bool>() ?? false;
+                    txtProxyVia.Text = configData.Proxy?.ToString() ?? "";
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi đọc cấu hình: {ex.Message}");
+            }
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            SaveFormData();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            // Form load event handler
         }
 
         private async void btnLoadInfoAdsUser_Click(object sender, EventArgs e)
@@ -921,6 +979,8 @@ namespace AutoCamp
             try
             {
                 btnAddCredit.Enabled = false;
+                richTextBox1.Text += "\nBắt đầu quá trình thêm thẻ...";
+
                 string jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "credit_data.txt");
                 if (!File.Exists(jsonPath))
                 {
@@ -937,70 +997,92 @@ namespace AutoCamp
                     return;
                 }
 
-                List<Task> tasks = new List<Task>();
-
+                // Lấy danh sách các tài khoản được chọn
+                var selectedAccounts = new List<DataGridViewRow>();
                 foreach (DataGridViewRow row in adsAccountTable.Rows)
                 {
-                    if ((bool)row.Cells["cbxTable"].FormattedValue)
+                    if (row.Cells["cbxTable"].Value != null && (bool)row.Cells["cbxTable"].Value)
                     {
-                        var currentRow = row;
-                        var task = Task.Run(async () =>
-                        {
-                            try
-                            {
-                                if (creditData.IsChangeInfo)
-                                {
-                                    await UpdateUIAsync(() => currentRow.Cells["process"].Value = "Đang change info...");
-                                    // TODO: Xử lý change info
-                                    await Task.Delay(5000);
-                                    await UpdateUIAsync(() => currentRow.Cells["process"].Value = "Change info thành công");
-                                    await Task.Delay(1000);
-                                    await UpdateUIAsync(() => currentRow.Cells["process"].Value = "Đang thêm thẻ " + creditData.CreditDataText.Split("|")[0]);
-                                    await Task.Delay(1000);
-                                    await UpdateUIAsync(() => currentRow.Cells["process"].Value = "Thêm thẻ thành công");
-                                }
-                                else
-                                {
-                                    await UpdateUIAsync(() => currentRow.Cells["process"].Value = "Đang thêm thẻ " + creditData.CreditDataText.Split("|")[0]);
-                                    await Task.Delay(1000);
-
-                                    string idTkqc = currentRow.Cells["id"].Value.ToString() ?? string.Empty;
-                                    string proxy = "";
-
-                                    string filePath = "";
-                                    // Đọc đường dẫn profile từ file profile_path.txt
-                                    string profilePathFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "profile_path.txt");
-                                    string fullCredit = creditData.CreditDataText.Trim();
-                                    if (File.Exists(profilePathFile))
-                                    {
-                                        filePath = File.ReadAllText(profilePathFile).Trim();
-                                    }
-
-                                    if (cbxProxy.Checked)
-                                    {
-                                        proxy = txtProxyVia.Text;
-                                    }
-
-                                    string result = await AddCreditChrome.AddCreditByChrome(filePath, idTkqc, fullCredit ,proxy);
-
-                                    await UpdateUIAsync(() => currentRow.Cells["process"].Value = result);
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                await UpdateUIAsync(() => currentRow.Cells["process"].Value = "Lỗi: " + ex.Message);
-                            }
-                        });
-
-                        tasks.Add(task);
+                        selectedAccounts.Add(row);
+                        row.Cells["process"].Value = "Đang chờ...";
                     }
                 }
 
-                await Task.WhenAll(tasks);
+                if (selectedAccounts.Count == 0)
+                {
+                    MessageBox.Show("Vui lòng chọn ít nhất một tài khoản!");
+                    return;
+                }
+
+                richTextBox1.Text += $"\nTìm thấy {selectedAccounts.Count} tài khoản được chọn";
+
+                string proxy = "";
+                string filePath = "";
+                string profilePathFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "profile_path.txt");
+                string fullCredit = creditData.CreditDataText.Trim();
+
+                if (File.Exists(profilePathFile))
+                {
+                    filePath = File.ReadAllText(profilePathFile).Trim();
+                }
+
+                if (cbxProxy.Checked)
+                {
+                    proxy = txtProxyVia.Text;
+                }
+
+                // Xử lý tuần tự từng tài khoản
+                foreach (var row in selectedAccounts)
+                {
+                    try
+                    {
+                        string idTkqc = row.Cells["id"].Value?.ToString() ?? string.Empty;
+                        if (string.IsNullOrEmpty(idTkqc))
+                        {
+                            row.Cells["process"].Value = "Không tìm thấy ID tài khoản";
+                            continue;
+                        }
+
+                        row.Cells["process"].Value = "Đang thêm thẻ...";
+
+                        // Chạy tác vụ thêm thẻ với timeout để tránh treo form
+                        var addCreditTask = AddCreditChrome.AddCreditByChrome(filePath, idTkqc, fullCredit, proxy);
+                        
+                        // Đợi tác vụ hoàn thành hoặc hết thời gian (ví dụ: 90 giây)
+                        var completedTask = await Task.WhenAny(addCreditTask, Task.Delay(TimeSpan.FromSeconds(90)));
+
+                        if (completedTask == addCreditTask)
+                        {
+                            // Tác vụ hoàn thành trong thời gian cho phép
+                            // Dòng await này sẽ lấy kết quả hoặc hiển thị lỗi nếu tác vụ thất bại
+                            row.Cells["process"].Value = await addCreditTask;
+                        }
+                        else
+                        {
+                            // Tác vụ không hoàn thành (quá thời gian chờ)
+                            row.Cells["process"].Value = "Lỗi: Quá trình thêm thẻ mất quá nhiều thời gian.";
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Kiểm tra xem có phải lỗi do trình duyệt bị đóng không
+                        if (ex is OpenQA.Selenium.WebDriverException || ex.InnerException is OpenQA.Selenium.WebDriverException)
+                        {
+                            row.Cells["process"].Value = "Lỗi: Trình duyệt đã bị đóng hoặc không phản hồi.";
+                        }
+                        else
+                        {
+                            row.Cells["process"].Value = $"Lỗi: {ex.Message}";
+                        }
+                    }
+                }
+
+                richTextBox1.Text += "\nHoàn thành quá trình thêm thẻ!";
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi đọc file credit_data.txt: {ex.Message}");
+                richTextBox1.Text += $"\nLỗi: {ex.Message}";
+                MessageBox.Show($"Lỗi khi xử lý: {ex.Message}");
             }
             finally
             {
@@ -1020,7 +1102,7 @@ namespace AutoCamp
             }
         }
 
-        
+
         // chọn via để load
         private void btnSelectVia_Click(object sender, EventArgs e)
         {
@@ -1032,6 +1114,11 @@ namespace AutoCamp
                 txtProxyVia.Text = selectViaForm.SelectedProfileData.Proxy;
                 cbxProxy.Checked = true;
             }
+        }
+
+        private void btnOpenBill_Click(object sender, EventArgs e)
+        {
+            
         }
     }
 }

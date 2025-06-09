@@ -1,0 +1,6 @@
+{
+  "Cookie": "alsfid={\"id\":\"f91785639\",\"timestamp\":1749359515857}; ps_l=1; fr=1pE4fcreCyRek9rkH.AWdIqx6-VWcUr8jU4DWikQSrVBoLXUpKkikf6UP5PnOKJ_TS0d8.BoRGBR..AAA.0.0.BoRGBR.AWcm_xb4dpGBzGGSHN0I81CEBEU; wd=704x625; c_user=100088926545598; locale=en_US; ps_n=1; datr=01tEaJi4t3AZdIf49wXF5Nbh; sb=noYbaKPT-utas8Hn4xEYhnkG; xs=40%3AajkXYmJBGjmduQ%3A2%3A1749310451%3A-1%3A-1%3A%3AAcU_viSHH78Wx18likL63nfRWph2R5a8YTX63qMnbQ; cppo=1; oo=v1",
+  "Token": "EAABsbCS1iHgBO6y88nrYQZC3p0bUH1nOGowCXdXp5kQVwy5fLZBLPYNZBq1w7Ar7ierscZBieZCTIcwCndLd04lYmSBNWHcUCoK5AQs9THlw7hNxzr8EcIRUCgalB6esZC4N3VZBOlNJanqGXKSgc6fDzNos3iLZBOm8g7tOQOggvN91CnjCbf4POpfVRM6uJ1C7ZAgZDZD",
+  "UseProxy": true,
+  "Proxy": "127.0.0.1:60000"
+}

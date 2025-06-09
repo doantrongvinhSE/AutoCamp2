@@ -86,7 +86,7 @@
             btnCampBpOptions = new Button();
             button10 = new Button();
             button9 = new Button();
-            button8 = new Button();
+            btnOpenBill = new Button();
             button7 = new Button();
             button6 = new Button();
             button5 = new Button();
@@ -468,7 +468,7 @@
             panel4.Controls.Add(panel7);
             panel4.Controls.Add(button10);
             panel4.Controls.Add(button9);
-            panel4.Controls.Add(button8);
+            panel4.Controls.Add(btnOpenBill);
             panel4.Controls.Add(button7);
             panel4.Controls.Add(button6);
             panel4.Controls.Add(button5);
@@ -619,14 +619,15 @@
             button9.Text = "Bật TT";
             button9.UseVisualStyleBackColor = true;
             // 
-            // button8
+            // btnOpenBill
             // 
-            button8.Location = new Point(694, 3);
-            button8.Name = "button8";
-            button8.Size = new Size(66, 23);
-            button8.TabIndex = 8;
-            button8.Text = "OpenBill";
-            button8.UseVisualStyleBackColor = true;
+            btnOpenBill.Location = new Point(694, 3);
+            btnOpenBill.Name = "btnOpenBill";
+            btnOpenBill.Size = new Size(66, 23);
+            btnOpenBill.TabIndex = 8;
+            btnOpenBill.Text = "OpenBill";
+            btnOpenBill.UseVisualStyleBackColor = true;
+            btnOpenBill.Click += btnOpenBill_Click;
             // 
             // button7
             // 
@@ -955,6 +956,11 @@
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "Form1";
             Text = "Auto Camp - WOLF META";
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.MaximizeBox = false;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
+            this.Load += new System.EventHandler(this.Form1_Load);
             panel1.ResumeLayout(false);
             tabControl1.ResumeLayout(false);
             tabPage1.ResumeLayout(false);
@@ -1028,7 +1034,7 @@
         private Button button5;
         private Button button6;
         private Button button7;
-        private Button button8;
+        private Button btnOpenBill;
         private Button button9;
         private Button button10;
         private Panel panel7;
