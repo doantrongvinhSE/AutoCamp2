@@ -49,5 +49,32 @@ namespace AutoCamp.models
         [JsonProperty("id")]
         public string Id { get; set; }
 
+
+        [JsonProperty("funding_source_details")]
+        public FundingSourceDetails FundingSourceDetails { get; set; }
+
+        [JsonProperty("adspaymentcycle")]
+        public Adspaymentcycle Adspaymentcycle { get; set; }
+
     }
+
+
+    public class FundingSourceDetails
+    {
+        [JsonProperty("display_string")]
+        public string DisplayString { get; set; }
+    }
+
+    public class Adspaymentcycle
+    {
+        [JsonProperty("data")]
+        public List<AdspaymentData> Data { get; set; }
+    }
+
+    public class AdspaymentData
+    {
+        [JsonProperty("threshold_amount")]
+        public double ThresholdAmount { get; set; }
+    }
+
 }

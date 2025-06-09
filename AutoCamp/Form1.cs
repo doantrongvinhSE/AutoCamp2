@@ -157,7 +157,8 @@ namespace AutoCamp
                     row.Cells["id"].Value = account.AccountId;
                     row.Cells["dateCreated"].Value = account.CreatedTime;
                     row.Cells["budget"].Value = account.Balance;
-                    row.Cells["threshold"].Value = account.AdtrustDsl;
+                    row.Cells["threshold"].Value = account.Adspaymentcycle?.Data?[0]?.ThresholdAmount.ToString();
+                    row.Cells["credit"].Value = account.FundingSourceDetails?.DisplayString;
                     row.Cells["isPrepay"].Value = account.IsPrepayAccount;
                     row.Cells["bill"].Value = account.NextBillDate;
                     row.Cells["limit"].Value = (account.AdtrustDsl > 1) ? account.AdtrustDsl.ToString() : "nolimit";
@@ -332,8 +333,9 @@ namespace AutoCamp
                         row.Cells["id"].Value = account.AccountId;
                         row.Cells["dateCreated"].Value = account.CreatedTime;
                         row.Cells["budget"].Value = account.Balance;
-                        row.Cells["threshold"].Value = account.AdtrustDsl;
                         row.Cells["isPrepay"].Value = account.IsPrepayAccount;
+                        row.Cells["threshold"].Value = account.Adspaymentcycle?.Data?[0]?.ThresholdAmount.ToString();
+                        row.Cells["credit"].Value = account.FundingSourceDetails?.DisplayString;
                         row.Cells["bill"].Value = account.NextBillDate;
                         row.Cells["limit"].Value = (account.AdtrustDsl > 1) ? account.AdtrustDsl.ToString() : "nolimit";
                     }
@@ -444,7 +446,8 @@ namespace AutoCamp
                         row.Cells["id"].Value = account.AccountId;
                         row.Cells["dateCreated"].Value = account.CreatedTime;
                         row.Cells["budget"].Value = account.Balance;
-                        row.Cells["threshold"].Value = account.AdtrustDsl;
+                        row.Cells["threshold"].Value = account.Adspaymentcycle?.Data?[0]?.ThresholdAmount.ToString();
+                        row.Cells["credit"].Value = account.FundingSourceDetails?.DisplayString;
                         row.Cells["isPrepay"].Value = account.IsPrepayAccount;
                         row.Cells["bill"].Value = account.NextBillDate;
                         row.Cells["limit"].Value = (account.AdtrustDsl > 1) ? account.AdtrustDsl.ToString() : "nolimit";
@@ -1047,7 +1050,7 @@ namespace AutoCamp
 
                         // Chạy tác vụ thêm thẻ với timeout để tránh treo form
                         var addCreditTask = AddCreditChrome.AddCreditByChrome(filePath, idTkqc, fullCredit, proxy);
-                        
+
                         // Đợi tác vụ hoàn thành hoặc hết thời gian (ví dụ: 90 giây)
                         var completedTask = await Task.WhenAny(addCreditTask, Task.Delay(TimeSpan.FromSeconds(90)));
 
@@ -1118,7 +1121,140 @@ namespace AutoCamp
 
         private void btnOpenBill_Click(object sender, EventArgs e)
         {
-            
+
+        }
+
+        private async void btnLoadAgain_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                btnLoadAgain.Enabled = false;
+                string cookie = txtCookieVia.Text;
+                string token = txtToken.Text;
+                string proxy = "";
+
+                if (cookie.Length == 0 || token.Length == 0)
+                {
+                    MessageBox.Show("Vui lòng nhập cookie, token!");
+                    return;
+                }
+
+                if (cbxProxy.Checked)
+                {
+                    proxy = txtProxyVia.Text;
+                }
+
+                List<Task> tasks = new List<Task>();
+
+                foreach (DataGridViewRow row in adsAccountTable.Rows)
+                {
+                    if ((bool)row.Cells["cbxTable"].FormattedValue)
+                    {
+                        // Copy row để dùng trong Task tránh closure issues
+                        var currentRow = row;
+
+                        var task = Task.Run(async () =>
+                        {
+                            try
+                            {
+                                string idTkqc = currentRow.Cells["id"].Value.ToString();
+                                
+                                // Cập nhật UI phải gọi từ thread chính
+                                await UpdateUIAsync(() => currentRow.Cells["process"].Value = "Đang load lại...");
+
+                                // Thêm delay ngẫu nhiên để tránh quá tải
+                                await Task.Delay(new Random().Next(1000, 3000));
+
+                                string result = await AdsDomain.checkAgainTk(cookie, token, idTkqc, proxy);
+                                JObject json = JObject.Parse(result);
+
+                                if (json == null)
+                                {
+                                    await UpdateUIAsync(() => currentRow.Cells["process"].Value = "Lỗi load lại...");
+                                    return;
+                                }
+
+                                try
+                                {
+                                    // Xử lý an toàn các trường có thể không tồn tại
+                                    string account_status = json["account_status"]?.ToString() ?? "0";
+                                    string status = account_status switch
+                                    {
+                                        "1" => "Live",
+                                        "2" => "Die",
+                                        _ => "Không xác định"
+                                    };
+
+                                    // Lấy thông tin pixel an toàn
+                                    string pixelId = json["adspixels"]?["data"]?[0]?["id"]?.ToString() ?? "";
+                                    string pixelName = json["adspixels"]?["data"]?[0]?["name"]?.ToString() ?? "";
+                                    string pixelValue = !string.IsNullOrEmpty(pixelId) && !string.IsNullOrEmpty(pixelName) 
+                                        ? $"{pixelId}|{pixelName}" 
+                                        : "";
+
+                                    // Lấy thông tin funding source an toàn
+                                    string fundingSource = json["funding_source_details"]?["display_string"]?.ToString() ?? "";
+
+                                    // Lấy thông tin ads an toàn
+                                    string pagePost = json["ads"]?["data"]?[0]?["creative"]?["effective_object_story_id"]?.ToString() ?? "";
+
+                                    // Lấy thông tin adsets an toàn
+                                    string startTime = json["adsets"]?["data"]?[0]?["start_time"]?.ToString() ?? "";
+
+                                    // Cập nhật UI với dữ liệu mới
+                                    await UpdateUIAsync(() =>
+                                    {
+                                        currentRow.Cells["status"].Value = status;
+                                        currentRow.Cells["country"].Value = json["business_country_code"]?.ToString() ?? "";
+                                        currentRow.Cells["currency"].Value = json["currency"]?.ToString() ?? "";
+                                        currentRow.Cells["timezone"].Value = json["timezone_name"]?.ToString() ?? "";
+                                        currentRow.Cells["pixel"].Value = pixelValue;
+                                        currentRow.Cells["credit"].Value = fundingSource;
+                                        currentRow.Cells["pagePost"].Value = pagePost;
+                                        currentRow.Cells["startTime"].Value = startTime;
+                                        currentRow.Cells["process"].Value = "Hoàn thành";
+                                    });
+                                }
+                                catch (Exception ex)
+                                {
+                                    // Nếu có lỗi khi xử lý JSON, vẫn tiếp tục với các giá trị mặc định
+                                    await UpdateUIAsync(() =>
+                                    {
+                                        currentRow.Cells["status"].Value = "Không xác định";
+                                        currentRow.Cells["country"].Value = "";
+                                        currentRow.Cells["currency"].Value = "";
+                                        currentRow.Cells["timezone"].Value = "";
+                                        currentRow.Cells["pixel"].Value = "";
+                                        currentRow.Cells["credit"].Value = "";
+                                        currentRow.Cells["pagePost"].Value = "";
+                                        currentRow.Cells["startTime"].Value = "";
+                                        currentRow.Cells["process"].Value = "Hoàn thành";
+                                    });
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                await UpdateUIAsync(() => currentRow.Cells["process"].Value = $"Lỗi: {ex.Message}");
+                            }
+                        });
+
+                        tasks.Add(task);
+                    }
+                }
+
+                // Đợi tất cả các task hoàn thành
+                await Task.WhenAll(tasks);
+                richTextBox1.Text += "\nĐã hoàn thành load lại tất cả tài khoản!";
+            }
+            catch (Exception ex)
+            {
+                richTextBox1.Text += $"\nLỗi: {ex.Message}";
+                MessageBox.Show($"Đã xảy ra lỗi: {ex.Message}");
+            }
+            finally
+            {
+                btnLoadAgain.Enabled = true;
+            }
         }
     }
 }

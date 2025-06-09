@@ -58,7 +58,7 @@ namespace AutoCamp.domain
             }
 
             var client = new RestClient(options);
-            var request = new RestRequest("https://graph.facebook.com/v22.0/" + idGroup + "?fields=contained_adaccounts.limit(300)%7Baccount_id%2Caccount_status%2Cadtrust_dsl%2Cname%2Camount_spent%2Cbalance%2Cis_prepay_account%2Ccreated_time%2Ctimezone_name%2Ccurrency%2Ctax_country%2Cnext_bill_date%7D&access_token=" + token, Method.Get);
+            var request = new RestRequest("https://graph.facebook.com/v22.0/" + idGroup + "?fields=contained_adaccounts.limit(300)%7Baccount_id%2Caccount_status%2Cadtrust_dsl%2Cname%2Camount_spent%2Cbalance%2Cis_prepay_account%2Ccreated_time%2Ctimezone_name%2Ccurrency%2Ctax_country%2Cnext_bill_date%2Cfunding_source_details%2Cadspaymentcycle%7D&access_token=" + token, Method.Get);
             request.AddHeader("cookie", cookie);
             RestResponse response = await client.ExecuteAsync(request);
 

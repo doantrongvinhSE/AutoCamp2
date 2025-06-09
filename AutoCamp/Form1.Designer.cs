@@ -70,7 +70,6 @@
             btnSelectedAllData = new ToolStripMenuItem();
             btnUnselectedBlackData = new ToolStripMenuItem();
             btnUnselectedAll = new ToolStripMenuItem();
-            btnCheckCredit = new ToolStripMenuItem();
             btnAddCredit = new ToolStripMenuItem();
             panel4 = new Panel();
             panel7 = new Panel();
@@ -119,6 +118,7 @@
             label1 = new Label();
             tabPage2 = new TabPage();
             tabPage3 = new TabPage();
+            btnCheckCredit = new ToolStripMenuItem();
             panel1.SuspendLayout();
             tabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
@@ -355,9 +355,9 @@
             // contextMenuStrip1
             // 
             contextMenuStrip1.ImageScalingSize = new Size(24, 24);
-            contextMenuStrip1.Items.AddRange(new ToolStripItem[] { btnLoadAgain, btnOnOffCamp, btnClearOptions, btnSelectedOptions, btnCheckCredit, btnAddCredit });
+            contextMenuStrip1.Items.AddRange(new ToolStripItem[] { btnLoadAgain, btnOnOffCamp, btnClearOptions, btnSelectedOptions, btnAddCredit });
             contextMenuStrip1.Name = "contextMenuStrip1";
-            contextMenuStrip1.Size = new Size(160, 184);
+            contextMenuStrip1.Size = new Size(160, 154);
             // 
             // btnLoadAgain
             // 
@@ -365,6 +365,7 @@
             btnLoadAgain.Name = "btnLoadAgain";
             btnLoadAgain.Size = new Size(159, 30);
             btnLoadAgain.Text = "Load lại";
+            btnLoadAgain.Click += btnLoadAgain_Click;
             // 
             // btnOnOffCamp
             // 
@@ -446,14 +447,6 @@
             btnUnselectedAll.Size = new Size(230, 22);
             btnUnselectedAll.Text = "Bỏ chọn tất cả";
             btnUnselectedAll.Click += btnUnselectedAll_Click;
-            // 
-            // btnCheckCredit
-            // 
-            btnCheckCredit.Image = Properties.Resources.card;
-            btnCheckCredit.Name = "btnCheckCredit";
-            btnCheckCredit.Size = new Size(159, 30);
-            btnCheckCredit.Text = "Check thẻ";
-            btnCheckCredit.Click += btnCheckCredit_Click;
             // 
             // btnAddCredit
             // 
@@ -947,20 +940,27 @@
             tabPage3.Text = "Config";
             tabPage3.UseVisualStyleBackColor = true;
             // 
+            // btnCheckCredit
+            // 
+            btnCheckCredit.Image = Properties.Resources.card;
+            btnCheckCredit.Name = "btnCheckCredit";
+            btnCheckCredit.Size = new Size(188, 30);
+            btnCheckCredit.Text = "Check thẻ";
+            btnCheckCredit.Click += btnCheckCredit_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1740, 637);
             Controls.Add(panel1);
+            FormBorderStyle = FormBorderStyle.FixedSingle;
             Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "Form1";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "Auto Camp - WOLF META";
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.MaximizeBox = false;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
-            this.Load += new System.EventHandler(this.Form1_Load);
+            FormClosing += Form1_FormClosing;
+            Load += Form1_Load;
             panel1.ResumeLayout(false);
             tabControl1.ResumeLayout(false);
             tabPage1.ResumeLayout(false);
@@ -1025,7 +1025,6 @@
         private ContextMenuStrip contextMenuStrip3;
         private ToolStripMenuItem btnClearSelectedData;
         private ToolStripMenuItem btnClearAllData;
-        private ToolStripMenuItem btnCheckCredit;
         private TextBox txtSearchIdTkqc;
         private Button btnCheckXMSDT;
         private Button btnAddCreditOptions;
@@ -1070,5 +1069,6 @@
         private DataGridViewTextBoxColumn process;
         private Button btnClearAllDraft;
         private ToolStripMenuItem btnAddCredit;
+        private ToolStripMenuItem btnCheckCredit;
     }
 }

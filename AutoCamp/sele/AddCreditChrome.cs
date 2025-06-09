@@ -16,7 +16,7 @@ namespace AutoCamp.sele
         private const int DEFAULT_TIMEOUT_SECONDS = 60;
         private const int NAVIGATION_DELAY_MS = 1500;
         private const int FORM_LOAD_DELAY_MS = 2000;
-        private const int SAVE_DELAY_MS = 20000;
+        private const int SAVE_DELAY_MS = 25000;
         private const string DEFAULT_NAME = "WOLF SA";
 
         public async static Task<string> AddCreditByChrome(string filePath, string idTkqc, string fullcredit, string? proxy = null)
@@ -112,9 +112,22 @@ namespace AutoCamp.sele
                 await Task.Delay(SAVE_DELAY_MS);
 
 
+                // check need
+                try
+                {
+                    var needVerifyElement = driver.FindElement(By.XPath("//*[text()='Verify card']"));
+                    if (needVerifyElement != null)
+                    {
+                        return "Add need verify";
+                    }
+                }
+                catch
+                {
+                }
 
                 // check thành công hay không 
                 driver.Navigate().Refresh();
+                Thread.Sleep(5000);
 
                 // xoá phần tử verify
                 try
@@ -123,7 +136,6 @@ namespace AutoCamp.sele
 
                     // Replace the problematic line with the following:
                     driver.ExecuteJavaScript("arguments[0].remove();", verifyElement2);
-                    await Task.Delay(FORM_LOAD_DELAY_MS);
 
                 }
                 catch (Exception ex)
@@ -137,14 +149,11 @@ namespace AutoCamp.sele
                     throw new Exception("Could not find name input field");
 
 
+
                 try
                 {
                     var creditCardElement = driver.FindElement(By.XPath($"//*[text()='Visa · {cardNumber.Split("|")[0].Substring(cardNumber.Split("|")[0].Length - 4)}']"));
-                    var creditCardElement2 = driver.FindElement(By.XPath($"//*[text()='Mastercard · {cardNumber.Split("|")[0].Substring(cardNumber.Split("|")[0].Length - 4)}']"));
-                    if (creditCardElement != null || creditCardElement2 != null) return "Thêm thẻ thành công";
-
-
-
+                    if (creditCardElement != null) return "Thêm thẻ thành công";
                 } catch (Exception ex) {
                     return "Thêm thẻ thất bại";
                 }
@@ -160,10 +169,20 @@ namespace AutoCamp.sele
 
         private static async Task FillCreditCardForm(IWebDriver driver, IWebElement nameElement, string cardNumber, string expiration, string securityCode)
         {
-            nameElement.SendKeys(DEFAULT_NAME);
-            driver.FindElement(By.Name("cardNumber")).SendKeys(cardNumber);
-            driver.FindElement(By.Name("expiration")).SendKeys(expiration);
-            driver.FindElement(By.Name("securityCode")).SendKeys(securityCode);
+            // Helper function to type with random delays
+            async Task TypeWithRandomDelay(IWebElement element, string text)
+            {
+                foreach (char c in text)
+                {
+                    element.SendKeys(c.ToString());
+                    await Task.Delay(new Random().Next(50, 150)); // Random delay between 50-150ms
+                }
+            }
+
+            await TypeWithRandomDelay(nameElement, DEFAULT_NAME);
+            await TypeWithRandomDelay(driver.FindElement(By.Name("cardNumber")), cardNumber);
+            await TypeWithRandomDelay(driver.FindElement(By.Name("expiration")), expiration);
+            await TypeWithRandomDelay(driver.FindElement(By.Name("securityCode")), securityCode);
             
             var saveButton = driver.FindElement(By.XPath("//*[text()='Save']"));
             saveButton.Click();
