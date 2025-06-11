@@ -69,6 +69,8 @@ namespace AutoCamp
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             SaveFormData();
+            // Đóng Chrome instance khi đóng form
+            AddCreditChrome.CloseSharedDriver();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -1019,10 +1021,12 @@ namespace AutoCamp
 
                 richTextBox1.Text += $"\nTìm thấy {selectedAccounts.Count} tài khoản được chọn";
 
+                string cookie = txtCookieVia.Text.Trim();
                 string proxy = "";
                 string filePath = "";
                 string profilePathFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "profile_path.txt");
                 string fullCredit = creditData.CreditDataText.Trim();
+                string fbdtsg = await TokenCookieDomain.getFbDtsg(cookie, proxy);
 
                 if (File.Exists(profilePathFile))
                 {
@@ -1046,6 +1050,34 @@ namespace AutoCamp
                             continue;
                         }
 
+                        // change info 
+                        if (creditData.IsChangeInfo)
+                        {
+                            row.Cells["process"].Value = "Đang thay đổi thông tin...";
+
+                            // Prepare data
+                            string country = creditData.Country;
+                            string subCountry = country.Substring(0, 2);
+
+                            string currency = creditData.Currency;
+                            int startIndexCurrency = currency.IndexOf("(") + 1;
+                            int endIndexCurrency = currency.IndexOf(")");
+                            string subCurrency = currency.Substring(startIndexCurrency, endIndexCurrency - startIndexCurrency);
+
+                            string timezone = creditData.TimeZone;
+                            int startIndexTimezone = timezone.IndexOf("{") + 1;
+                            int endIndexTimezone = timezone.IndexOf("}");
+                            string subTimezone = timezone.Substring(startIndexTimezone, endIndexTimezone - startIndexTimezone);
+
+                            await AdsDomain.changeInfoTkqcAsync(row, cookie, fbdtsg, idTkqc, subCurrency, subTimezone, subCountry, proxy);
+
+                            if (row.Cells["process"].Value != "Change thành công!")
+                            {
+                                row.Cells["process"].Value = "Change thất bại -> Dừng!";
+                                continue;
+                            }
+                        }
+                    
                         row.Cells["process"].Value = "Đang thêm thẻ...";
 
                         // Chạy tác vụ thêm thẻ với timeout để tránh treo form
@@ -1057,7 +1089,6 @@ namespace AutoCamp
                         if (completedTask == addCreditTask)
                         {
                             // Tác vụ hoàn thành trong thời gian cho phép
-                            // Dòng await này sẽ lấy kết quả hoặc hiển thị lỗi nếu tác vụ thất bại
                             row.Cells["process"].Value = await addCreditTask;
                         }
                         else
@@ -1081,6 +1112,10 @@ namespace AutoCamp
                 }
 
                 richTextBox1.Text += "\nHoàn thành quá trình thêm thẻ!";
+                
+                // Đóng Chrome sau khi hoàn thành
+                AddCreditChrome.CloseSharedDriver();
+                richTextBox1.Text += "\nĐã đóng Chrome!";
             }
             catch (Exception ex)
             {
@@ -1090,6 +1125,19 @@ namespace AutoCamp
             finally
             {
                 btnAddCredit.Enabled = true;
+            }
+        }
+
+        private void btnCloseChrome_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                AddCreditChrome.CloseSharedDriver();
+                richTextBox1.Text += "\nĐã đóng Chrome!";
+            }
+            catch (Exception ex)
+            {
+                richTextBox1.Text += $"\nLỗi khi đóng Chrome: {ex.Message}";
             }
         }
 
@@ -1201,6 +1249,11 @@ namespace AutoCamp
                                     // Lấy thông tin adsets an toàn
                                     string startTime = json["adsets"]?["data"]?[0]?["start_time"]?.ToString() ?? "";
 
+
+                                    string thresholdAmount = json["adspaymentcycle"]?["data"]?[0]?["threshold_amount"]?.ToString() ?? "";
+
+
+
                                     // Cập nhật UI với dữ liệu mới
                                     await UpdateUIAsync(() =>
                                     {
@@ -1212,24 +1265,14 @@ namespace AutoCamp
                                         currentRow.Cells["credit"].Value = fundingSource;
                                         currentRow.Cells["pagePost"].Value = pagePost;
                                         currentRow.Cells["startTime"].Value = startTime;
+                                        currentRow.Cells["threshold"].Value = thresholdAmount;
                                         currentRow.Cells["process"].Value = "Hoàn thành";
+
                                     });
                                 }
                                 catch (Exception ex)
                                 {
-                                    // Nếu có lỗi khi xử lý JSON, vẫn tiếp tục với các giá trị mặc định
-                                    await UpdateUIAsync(() =>
-                                    {
-                                        currentRow.Cells["status"].Value = "Không xác định";
-                                        currentRow.Cells["country"].Value = "";
-                                        currentRow.Cells["currency"].Value = "";
-                                        currentRow.Cells["timezone"].Value = "";
-                                        currentRow.Cells["pixel"].Value = "";
-                                        currentRow.Cells["credit"].Value = "";
-                                        currentRow.Cells["pagePost"].Value = "";
-                                        currentRow.Cells["startTime"].Value = "";
-                                        currentRow.Cells["process"].Value = "Hoàn thành";
-                                    });
+
                                 }
                             }
                             catch (Exception ex)

@@ -1,7 +1,7 @@
 {
   "FilePath": "C:\\profile",
-  "Cookie": "locale=en_US;ps_l=1;ps_n=1;sb=dXo5aEbCSN6krx3lqDxq3Nz0;datr=dXo5aGulpNinvxAh7YjAEYbx;c_user=100089054491065;cppo=1;wd=1920x953;xs=49%3A77ja2gUMgKutUQ%3A2%3A1749459912%3A-1%3A-1%3A%3AAcULhFxPhTUCYXdVqgf6EgIL8Ofiq-W-aTjj0ck3xw;fr=1fHGUEO4lqvpeSur6.AWd-jXs3vsZgEsnrnTOpQjfQb1_k__HVaAGk3Z3ztB-8dOIyakk.BoRqXm..AAA.0.0.BoRqZU.AWfdjiCD3tX3j0CaXcc1qhdSsC0;presence=C%7B%22t3%22%3A%5B%5D%2C%22utc3%22%3A1749460566904%2C%22v%22%3A1%7D;",
-  "Proxy": "212.32.122.19:44152:FVykGDIFKAIHoYS:LJUOKNqA0dYMbUa",
+  "Cookie": "sb=dXo5aEbCSN6krx3lqDxq3Nz0;wd=1920x953;datr=XBNJaAEoCZtJHyJg7zCMxFsq;c_user=100089054491065;xs=38%3APRVZi8BtNPas8w%3A2%3A1749619561%3A-1%3A-1;fr=1vdzpsdG8XJAXSJAs.AWegq4Oo7P1xemsQqbp2hdA2DcF5rjC_fXCRAIuolaG5UAzLvxE.BoSRI8..AAA.0.0.BoSRNt.AWchTQAeVl1mXT-C5hb3wNLQe1k;",
+  "Proxy": "127.0.0.1:60000",
   "Uid": "100089054491065",
   "Password": "gsECZS8NfPnUboz",
   "Token": "P6DCO5PXGLMNH67W57QWVHDLKDFFF2W7",

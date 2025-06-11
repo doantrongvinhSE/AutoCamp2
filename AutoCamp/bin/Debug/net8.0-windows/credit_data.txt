@@ -1,7 +1,7 @@
 {
-  "CreditDataText": "4748381184479817|07|25|903",
-  "IsChangeInfo": false,
-  "Country": "",
-  "Currency": "",
-  "TimeZone": ""
+  "CreditDataText": "4748381217142598|07|27|587",
+  "IsChangeInfo": true,
+  "Country": "US - Hoa Kỳ",
+  "Currency": "{17}Euro (EUR)",
+  "TimeZone": "(GMT -07:00) - Dawson - {America/Dawson}"
 }

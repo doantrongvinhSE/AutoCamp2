@@ -461,6 +461,116 @@ namespace AutoCamp.domain
             return response.Content ?? "Lỗi load lại...";
         }
 
+
+
+        public static async Task changeInfoTkqcAsync(DataGridViewRow row, string cookie, string fb_dtsg,  string idTkqc, string? currency = null, string? timezone = null, string? countryCode = null, string? proxy = null)
+        {
+            try
+            {
+                string uid = HelperUtils.ExtractUserIdFromCookie(cookie);
+
+                var options = new RestClientOptions("https://business.facebook.com")
+                {
+                    Timeout = TimeSpan.FromSeconds(60),
+                };
+                ProxyHelper.SetProxy(options, proxy);
+
+                var client = new RestClient(options);
+
+
+                var request = new RestRequest("/api/graphql/?_callFlowletID=0&_triggerFlowletID=11544", Method.Post);
+
+                request.AddHeader("User-Agent", "Mozilla/5.0(Windows NT 10.0; WOW64; rv:58.0) Gecko/20100101 Firefox/58.0");
+                request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
+                request.AddHeader("priority", "u=1, i");
+                request.AddHeader("sec-fetch-site", "same-origin");
+                request.AddHeader("Cookie", cookie);
+
+                request.AddParameter("av", uid);
+                request.AddParameter("__aaid", idTkqc);
+                request.AddParameter("__user", uid);
+                request.AddParameter("fb_dtsg", fb_dtsg);
+                request.AddParameter("lsd", "ckh6Ube9NOHPjsSScLURLx");
+
+                var variables = new JObject
+                {
+                    ["input"] = new JObject
+                    {
+                        ["billable_account_payment_legacy_account_id"] = idTkqc,
+                        ["currency"] = currency,
+                        ["tax"] = new JObject
+                        {
+                            ["business_address"] = new JObject
+                            {
+                                ["city"] = (countryCode == "US") ? "1" : "",
+                                ["country_code"] = countryCode,
+                                ["state"] = (countryCode == "US") ? "AL" : "",
+                                ["street1"] = "",
+                                ["street2"] = "",
+                                ["zip"] = (countryCode == "US") ? "99999" : ""
+                            },
+                            ["business_name"] = "",
+                            ["is_personal_use"] = false,
+                            ["second_tax_id"] = "",
+                            ["tax_id"] = "",
+                            ["tax_registration_status"] = ""
+                        },
+                        ["timezone"] = timezone,
+                        ["upl_logging_data"] = new JObject
+                        {
+                            ["context"] = "billingaccountinfo",
+                            ["entry_point"] = "BILLING_HUB",
+                            ["external_flow_id"] = "upl_1742802684232_d728d29f-e84f-4690-af3d-2adb2f054d75",
+                            ["target_name"] = "BillingAccountInformationUtilsUpdateAccountMutation",
+                            ["user_session_id"] = "upl_1742802684232_d728d29f-e84f-4690-af3d-2adb2f054d75",
+                            ["wizard_config_name"] = "BUSINESS_INFO_SUB",
+                            ["wizard_name"] = "COLLECT_ACCOUNT_INFO",
+                            ["wizard_screen_name"] = "account_information_state_display",
+                            ["wizard_session_id"] = "upl_wizard_1742802684232_0e4a62d2-5e3d-4550-a36f-9ba51ec64504",
+                            ["wizard_state_name"] = "account_information_state_display"
+                        },
+                        ["actor_id"] = uid,
+                        ["client_mutation_id"] = "11"
+                    },
+                    ["billingEntryPoint"] = "BILLING_HUB"
+                };
+
+                request.AddParameter("variables", variables.ToString());
+                request.AddParameter("doc_id", "9672874009413061");
+
+                RestResponse response = await client.ExecuteAsync(request);
+
+                if (response.Content != null && response.Content.Contains(countryCode))
+                {
+                    row.Cells["process"].Value = "Change thành công!";
+                    row.Cells["currency"].Value = currency;
+                    row.Cells["timezone"].Value = timezone;
+                    row.Cells["country"].Value = countryCode;
+                    return;
+                }
+                if (response.Content != null && response.Content.Contains("error"))
+                {
+                    row.Cells["process"].Style.ForeColor = Color.Red;
+                    row.Cells["process"].Value = "Change thất bại!";
+                    return;
+                }
+                else
+                {
+                    row.Cells["process"].Style.ForeColor = Color.Red;
+                    row.Cells["process"].Value = "Change thất bại!";
+                    return;
+                }
+
+
+            }
+            catch (Exception)
+            {
+                row.Cells["process"].Value = "Xảy ra lỗi khi change";
+            }
+
+
+        }
+
     }
 
 

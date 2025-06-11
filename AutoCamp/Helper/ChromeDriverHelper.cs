@@ -23,7 +23,7 @@ namespace AutoCamp.Helper
                     "--no-sandbox",
                     "--disable-popup-blocking",
                     "--disable-notifications",
-                    "--window-size=720,720"
+                    "--window-size=920,920"
                 );
                 options.AddAdditionalOption("useAutomationExtension", false);
 

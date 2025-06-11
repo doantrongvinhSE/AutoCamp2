@@ -18,13 +18,51 @@ namespace AutoCamp.sele
         private const int FORM_LOAD_DELAY_MS = 2000;
         private const int SAVE_DELAY_MS = 25000;
         private const string DEFAULT_NAME = "WOLF SA";
+        private static IWebDriver? _sharedDriver = null;
+        private static readonly object _lockObject = new object();
+
+        public static async Task<IWebDriver> GetOrCreateSharedDriver(string filePath, string? proxy = null)
+        {
+            if (_sharedDriver == null)
+            {
+                lock (_lockObject)
+                {
+                    if (_sharedDriver == null)
+                    {
+                        _sharedDriver = ChromeDriverHelper.CreateChromeDriver(filePath, proxy ?? "").Result;
+                    }
+                }
+            }
+            return _sharedDriver;
+        }
+
+        public static void CloseSharedDriver()
+        {
+            if (_sharedDriver != null)
+            {
+                _sharedDriver.Quit();
+                _sharedDriver = null;
+            }
+        }
+
+        public async static Task<string> AddCreditWithExistingDriver(IWebDriver driver, string idTkqc, string fullcredit)
+        {
+            try
+            {
+                var (cardNumber, expiration, securityCode) = ParseCreditInfo(fullcredit);
+                return await ProcessCreditCardAddition(driver, idTkqc, cardNumber, expiration, securityCode);
+            }
+            catch (Exception ex)
+            {
+                return $"Error: {ex.Message}";
+            }
+        }
 
         public async static Task<string> AddCreditByChrome(string filePath, string idTkqc, string fullcredit, string? proxy = null)
         {
-            IWebDriver? driver = null;
             try
             {
-                driver = await ChromeDriverHelper.CreateChromeDriver(filePath, proxy ?? "");
+                var driver = await GetOrCreateSharedDriver(filePath, proxy);
                 var (cardNumber, expiration, securityCode) = ParseCreditInfo(fullcredit);
 
                 if (!string.IsNullOrEmpty(proxy))
@@ -37,10 +75,6 @@ namespace AutoCamp.sele
             catch (Exception ex)
             {
                 return $"Error: {ex.Message}";
-            }
-            finally
-            {
-                driver?.Quit();
             }
         }
 
@@ -95,6 +129,7 @@ namespace AutoCamp.sele
                 if (addButton == null)
                     throw new Exception("Could not find 'Add payment method' button");
 
+
                 addButton.Click();
                 await Task.Delay(FORM_LOAD_DELAY_MS);
 
@@ -127,7 +162,7 @@ namespace AutoCamp.sele
 
                 // check thành công hay không 
                 driver.Navigate().Refresh();
-                Thread.Sleep(5000);
+                Thread.Sleep(7000);
 
                 // xoá phần tử verify
                 try
