@@ -119,6 +119,7 @@
             tabPage2 = new TabPage();
             tabPage3 = new TabPage();
             btnCheckCredit = new ToolStripMenuItem();
+            btnCheckCredit1 = new ToolStripMenuItem();
             panel1.SuspendLayout();
             tabControl1.SuspendLayout();
             tabPage1.SuspendLayout();
@@ -355,15 +356,15 @@
             // contextMenuStrip1
             // 
             contextMenuStrip1.ImageScalingSize = new Size(24, 24);
-            contextMenuStrip1.Items.AddRange(new ToolStripItem[] { btnLoadAgain, btnOnOffCamp, btnClearOptions, btnSelectedOptions, btnAddCredit });
+            contextMenuStrip1.Items.AddRange(new ToolStripItem[] { btnLoadAgain, btnOnOffCamp, btnClearOptions, btnSelectedOptions, btnAddCredit, btnCheckCredit1 });
             contextMenuStrip1.Name = "contextMenuStrip1";
-            contextMenuStrip1.Size = new Size(160, 154);
+            contextMenuStrip1.Size = new Size(189, 206);
             // 
             // btnLoadAgain
             // 
             btnLoadAgain.Image = Properties.Resources.refresh;
             btnLoadAgain.Name = "btnLoadAgain";
-            btnLoadAgain.Size = new Size(159, 30);
+            btnLoadAgain.Size = new Size(188, 30);
             btnLoadAgain.Text = "Load lại";
             btnLoadAgain.Click += btnLoadAgain_Click;
             // 
@@ -371,7 +372,7 @@
             // 
             btnOnOffCamp.Image = Properties.Resources.switch_on;
             btnOnOffCamp.Name = "btnOnOffCamp";
-            btnOnOffCamp.Size = new Size(159, 30);
+            btnOnOffCamp.Size = new Size(188, 30);
             btnOnOffCamp.Text = "Bật | Tắt Camp";
             // 
             // btnClearOptions
@@ -379,7 +380,7 @@
             btnClearOptions.DropDown = contextMenuStrip3;
             btnClearOptions.Image = Properties.Resources.trash;
             btnClearOptions.Name = "btnClearOptions";
-            btnClearOptions.Size = new Size(159, 30);
+            btnClearOptions.Size = new Size(188, 30);
             btnClearOptions.Text = "Xoá dữ liệu";
             // 
             // contextMenuStrip3
@@ -409,7 +410,7 @@
             btnSelectedOptions.DropDown = contextMenuStrip2;
             btnSelectedOptions.Image = Properties.Resources.touchscreen;
             btnSelectedOptions.Name = "btnSelectedOptions";
-            btnSelectedOptions.Size = new Size(159, 30);
+            btnSelectedOptions.Size = new Size(188, 30);
             btnSelectedOptions.Text = "Chọn dữ liệu";
             // 
             // contextMenuStrip2
@@ -452,7 +453,7 @@
             // 
             btnAddCredit.Image = Properties.Resources.card;
             btnAddCredit.Name = "btnAddCredit";
-            btnAddCredit.Size = new Size(159, 30);
+            btnAddCredit.Size = new Size(188, 30);
             btnAddCredit.Text = "Add thẻ";
             btnAddCredit.Click += btnAddCredit_Click;
             // 
@@ -942,11 +943,15 @@
             // 
             // btnCheckCredit
             // 
-            btnCheckCredit.Image = Properties.Resources.card;
             btnCheckCredit.Name = "btnCheckCredit";
-            btnCheckCredit.Size = new Size(188, 30);
-            btnCheckCredit.Text = "Check thẻ";
-            btnCheckCredit.Click += btnCheckCredit_Click;
+            btnCheckCredit.Size = new Size(32, 19);
+            // 
+            // btnCheckCredit1
+            // 
+            btnCheckCredit1.Image = Properties.Resources.card;
+            btnCheckCredit1.Name = "btnCheckCredit1";
+            btnCheckCredit1.Size = new Size(188, 30);
+            btnCheckCredit1.Text = "Check thẻ";
             // 
             // Form1
             // 
@@ -1070,5 +1075,6 @@
         private Button btnClearAllDraft;
         private ToolStripMenuItem btnAddCredit;
         private ToolStripMenuItem btnCheckCredit;
+        private ToolStripMenuItem btnCheckCredit1;
     }
 }

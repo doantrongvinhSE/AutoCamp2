@@ -593,70 +593,7 @@ namespace AutoCamp
 
 
         // done
-        private async void btnCheckCredit_Click(object sender, EventArgs e)
-        {
-            string proxy = "";
-
-            if (cbxProxy.Checked)
-            {
-                proxy = txtProxyVia.Text;
-            }
-
-            richTextBox1.Text += "\nĐang check thẻ...";
-
-            string cookie = txtCookieVia.Text ?? string.Empty;
-
-            string fb_dtsg = await Task.Run(() => TokenCookieDomain.getFbDtsg(cookie, proxy));
-
-            //string token = await Task.Run(() => TokenCookieDomain.getTokenEAABs(cookie, proxy));
-
-
-            List<Task> tasks = new List<Task>();
-
-            foreach (DataGridViewRow row in adsAccountTable.Rows)
-            {
-                if ((bool)row.Cells["cbxTable"].FormattedValue)
-                {
-                    // Copy row để dùng trong Task tránh closure issues
-                    var currentRow = row;
-
-                    var task = Task.Run(async () =>
-                    {
-                        try
-                        {
-                            string idTkqc = currentRow.Cells["id"].Value.ToString();
-                            currentRow.Cells["credit"].Value = "Đang check thẻ...";
-
-                            Thread.Sleep(new Random().Next(3000, 5000)); // Thêm delay ngẫu nhiên nhẹ
-
-                            string result = await Task.Run(() => AdsDomain.checkCredit3(cookie, fb_dtsg, idTkqc, proxy));
-
-
-
-                            // Cập nhật UI phải gọi từ thread chính
-                            adsAccountTable.Invoke((MethodInvoker)delegate
-                            {
-                                currentRow.Cells["credit"].Value = result;
-                            });
-                        }
-                        catch (Exception ex)
-                        {
-                            adsAccountTable.Invoke((MethodInvoker)delegate
-                            {
-                                currentRow.Cells["credit"].Value = "Lỗi: " + ex.Message;
-                            });
-                        }
-                    });
-
-                    tasks.Add(task);
-                }
-            }
-
-            await Task.WhenAll(tasks);
-
-            richTextBox1.Text += "\nCheck thẻ xong!";
-
-        }
+      
 
         private void txtSearchIdTkqc_TextChanged(object sender, EventArgs e)
         {
@@ -951,20 +888,38 @@ namespace AutoCamp
 
         private async void button6_Click(object sender, EventArgs e)
         {
-            string token = "EAABsbCS1iHgBOZCseF18xV6xo3QlbpGGJx5HggxpGa2fPzUDsRdvoelU62MU42RUFWQ1meRzygznuPD1tRBv3jZBNyZAuEfqi4XxHZBLTCsjLX9ZCZBcqEJ0FD9ZCnnBjbD1cexSZAEfryMUJLWpYeHZAdcb536ZBZAVL3rvUTbRbxA8bSP7Hgn0xPLSNycCyKHa33oMR9vFTMLYmEVQQZDZD";
-            string cookie = "datr=SlEraNMUX6kctjyD47NwJAjz;sb=SlEraEF1ZBNQ9W6Qbu_7e7wQ;ps_l=1;ps_n=1;dpr=1.5;locale=en_US;c_user=100000566470040;cppo=1;wd=1707x932;b_user=61577073351295;presence=C%7B%22t3%22%3A%5B%5D%2C%22utc3%22%3A1748700779946%2C%22v%22%3A1%7D;fr=1wLcIz2MQHsqfyVg2.AWdmD4__BfeyzdXLiWwyVnhGLROtM-FrueOdl-QstSaaqXNjS4Q.BoOxCz..AAA.0.0.BoOxCz.AWcF4zSO7FFDyfD8jOZ22o9pfwk;xs=47%3AJDDQ1axDi91WJg%3A2%3A1748625207%3A-1%3A-1%3AC6rzUIv3_232Ig%3AAcXKpct4hDxYyaqISal7jQT6yhs16_bbRmKdSMGQMdI;alsfid={\"id\":\"fb13a3295\",\"timestamp\":1748705059380.8};";
-            string idTkqc = "948225016638568";
+            string token = "EAABsbCS1iHgBOZCNcp5oyl9azMDZBtZCETAI6L0l79qZA5WNbz9WCQaCGODAZA0SWs1myJvZAdBuBkgpcCBBF1VyZCbXpwuY0TLYcdSXqMEHD1ZCaSLcLe5RYuug4hAXKOKRw81QNFtdxI1TcPrIo6FTF1BnbKDXCKZCm3fHRnpELYdtLs7kFEVi2hz4PX8ou1JI38AZDZD";
+            string cookie = "sb=PTlmZ0Rv-absBhFxrL8SNddn;datr=PTlmZ4aIgzyEEwdgHF-7Jmi-;ps_l=1;ps_n=1;wl_cbv=v2%3Bclient_version%3A2775%3Btimestamp%3A1743480093;c_user=100042072592948;b_user=61573201743336;wd=1920x953;fr=1ASVCWcghUrnyrsV1.AWd53U7SMdCNKCKkzBjE9WoKACaGaodgJb-x5GMkINku8-h30RU.BoSS5W..AAA.0.0.BoSS5W.AWd3DyPzTs9XVjTPVpds2JaY_0U;xs=3%3AXY7kt52SWeYpeA%3A2%3A1749090751%3A-1%3A-1%3AjaMB1GZ1gZWnLA%3AAcXzPQjxAUMa94uBmnk3N00NSUSNKz-VXbI1uV9IWn8;presence=C%7B%22t3%22%3A%5B%5D%2C%22utc3%22%3A1749627608649%2C%22v%22%3A1%7D;";
 
-            string result = await CampPEDomain.publicCampPeDraft(cookie, token, idTkqc);
+            List<string> pages = await PageDomain.getAllPostPage(cookie, token, "373154962556337");
 
-            MessageBox.Show(result);
+            Console.WriteLine(pages);
+
+            
         }
 
-        private void btnCampBpOptions_Click(object sender, EventArgs e)
+        private async void btnCampBpOptions_Click(object sender, EventArgs e)
         {
-            CampBPOptionsForm campBPOptionsForm = new CampBPOptionsForm();
-            campBPOptionsForm.ShowDialog();
+            string cookie = txtCookieVia.Text;
+            string token = txtToken.Text;
+            string proxy = "";
 
+            if (cookie.Length == 0 || token.Length == 0)
+            {
+                MessageBox.Show("Vui lòng nhập cookie, token!");
+                return;
+            }
+
+            if (cbxProxy.Checked)
+            {
+                proxy = txtProxyVia.Text;
+            }
+
+            richTextBox1.Text += "\nĐang lấy danh sách trang...";
+
+            List<PageInfoModel> pages = await PageDomain.getDataAllPage(cookie, token, proxy);
+            CampBPOptionsForm campBPOptionsForm = new CampBPOptionsForm(pages, cookie, token, proxy);
+            campBPOptionsForm.ShowDialog();
         }
 
         private void btnViaConfig_Click(object sender, EventArgs e)

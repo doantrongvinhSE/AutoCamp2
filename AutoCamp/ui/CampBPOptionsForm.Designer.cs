@@ -33,8 +33,8 @@
             button1 = new Button();
             label1 = new Label();
             panel2 = new Panel();
-            comboBox3 = new ComboBox();
-            comboBox2 = new ComboBox();
+            cbbPostId = new ComboBox();
+            cbbPageID = new ComboBox();
             label4 = new Label();
             label3 = new Label();
             comboBox1 = new ComboBox();
@@ -74,8 +74,8 @@
             // 
             // panel2
             // 
-            panel2.Controls.Add(comboBox3);
-            panel2.Controls.Add(comboBox2);
+            panel2.Controls.Add(cbbPostId);
+            panel2.Controls.Add(cbbPageID);
             panel2.Controls.Add(label4);
             panel2.Controls.Add(label3);
             panel2.Controls.Add(comboBox1);
@@ -85,21 +85,22 @@
             panel2.Size = new Size(605, 164);
             panel2.TabIndex = 0;
             // 
-            // comboBox3
+            // cbbPostId
             // 
-            comboBox3.FormattingEnabled = true;
-            comboBox3.Location = new Point(75, 100);
-            comboBox3.Name = "comboBox3";
-            comboBox3.Size = new Size(515, 23);
-            comboBox3.TabIndex = 3;
+            cbbPostId.FormattingEnabled = true;
+            cbbPostId.Location = new Point(75, 100);
+            cbbPostId.Name = "cbbPostId";
+            cbbPostId.Size = new Size(515, 23);
+            cbbPostId.TabIndex = 3;
             // 
-            // comboBox2
+            // cbbPageID
             // 
-            comboBox2.FormattingEnabled = true;
-            comboBox2.Location = new Point(75, 55);
-            comboBox2.Name = "comboBox2";
-            comboBox2.Size = new Size(515, 23);
-            comboBox2.TabIndex = 3;
+            cbbPageID.FormattingEnabled = true;
+            cbbPageID.Location = new Point(75, 55);
+            cbbPageID.Name = "cbbPageID";
+            cbbPageID.Size = new Size(515, 23);
+            cbbPageID.TabIndex = 3;
+            cbbPageID.SelectedIndexChanged += cbbPageID_SelectedIndexChanged;
             // 
             // label4
             // 
@@ -164,9 +165,9 @@
         private Label label1;
         private ComboBox comboBox1;
         private Label label2;
-        private ComboBox comboBox2;
+        private ComboBox cbbPageID;
         private Label label3;
-        private ComboBox comboBox3;
+        private ComboBox cbbPostId;
         private Label label4;
         private Button button1;
     }

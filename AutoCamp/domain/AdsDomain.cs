@@ -148,69 +148,14 @@ namespace AutoCamp.domain
 
 
 
-
-        public static async Task<string> checkCredit(string cookie, string idTkqc, string fb_dtsg, string? proxy = null)
+        // update đi
+        public static async Task<string> checkCredit(string cookie, string token, string idTkqc, string? proxy = null)
         {
-            string uidVia = HelperUtils.ExtractUserIdFromCookie(cookie);
-
-
-            var options = new RestClientOptions("https://business.facebook.com")
+            var options = new RestClientOptions("https://graph.facebook.com")
             {
+                MaxTimeout = -1,
             };
 
-            if (proxy != null)
-            {
-                ProxyHelper.SetProxy(options, proxy);
-            }
-
-            var client = new RestClient(options);
-            var request = new RestRequest("/api/graphql/", Method.Post);
-            request.AddHeader("accept", "*/*");
-            request.AddHeader("origin", "https://business.facebook.com");
-            request.AddHeader("priority", "u=1, i");
-            request.AddHeader("sec-ch-ua-mobile", "?0");
-            request.AddHeader("sec-ch-ua-model", "\"\"");
-            request.AddHeader("sec-ch-ua-platform", "\"Windows\"");
-            request.AddHeader("sec-ch-ua-platform-version", "\"10.0.0\"");
-            request.AddHeader("sec-fetch-dest", "empty");
-            request.AddHeader("sec-fetch-mode", "cors");
-            request.AddHeader("sec-fetch-site", "same-origin");
-            request.AddHeader("Cookie", cookie);
-            request.AddParameter("av", uidVia);
-            request.AddParameter("__aaid", idTkqc);
-            request.AddParameter("__user", uidVia);
-            request.AddParameter("fb_dtsg", fb_dtsg);
-            request.AddParameter("fb_api_req_friendly_name", "BillingHubPaymentMethodsBillableAccountSectionPaymentMethodsQuery");
-            request.AddParameter("variables", "{\"paymentAccountID\":\"" + idTkqc + "\",\"channels\":[\"PERMISSION\"]}");
-            request.AddParameter("doc_id", "8899973910108871");
-            RestResponse response = await client.ExecuteAsync(request);
-
-            string responseContent = response.Content ?? string.Empty;
-
-            var match = Regex.Match(responseContent, "\"card_association_name\"\\s*:\\s*\"([^\"]+)\"");
-            var match2 = Regex.Match(responseContent, "\"last_four_digits\"\\s*:\\s*\"([^\"]+)\"");
-
-            if (responseContent.Contains("limit"))
-            {
-                return "VIA SPAM!";
-            }
-
-
-            if (match.Success)
-            {
-                return match.Groups[1].Value + " - " + match2.Groups[1].Value;
-            }
-            else
-            {
-                return "Không có thẻ!";
-            }
-
-        }
-
-
-        public static async Task<string> checkCredit2(string cookie, string token, string idTkqc, string? proxy = null)
-        {
-            var options = new RestClientOptions("https://graph.facebook.com");
 
             if (proxy != null)
             {
@@ -218,27 +163,13 @@ namespace AutoCamp.domain
             }
 
             var client = new RestClient(options);
-            var request = new RestRequest("/v15.0/act_" + idTkqc + "?fields=all_payment_methods%7Bpm_credit_card%7Bdisplay_string,exp_month,exp_year,is_verified%7D%7D&access_token=" + token, Method.Get);
-
-            request.AddHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36");
-            request.AddHeader("origin", "https://business.facebook.com");
-            request.AddHeader("sec-fetch-site", "same-site");
+            var request = new RestRequest("/graphql?access_token="+token+"&variables=%7B%22paymentAccountID%22:%22"+idTkqc+"%22%7D&doc_id=6975887429148122&method=post", Method.Get);
             request.AddHeader("Cookie", cookie);
-
             RestResponse response = await client.ExecuteAsync(request);
+            return null;
 
-            string responseContent = response.Content ?? string.Empty;
-
-            var match = Regex.Match(responseContent, "\"display_string\"\\s*:\\s*\"([^\"]+)\"");
-
-            if (match.Success)
-            {
-                return Regex.Unescape(match.Groups[1].Value);
-            }
-
-
-            return "Không có thẻ!";
         }
+
 
         public static async Task<string> checkCredit3(string cookie, string fb_dtsg, string idTkqc, string? proxy = null)
         {
